@@ -3,7 +3,7 @@
 # GROUP MEMBERS
 - [Dela Torre, Kayea Joy] (https://github.com/KHAY2006)
 - Inajenes, Nena Rose
-
+- [Dela Torre, Kayea Joy](https://github.com/KHAY2006)
  # Section
  - IT1C
 
