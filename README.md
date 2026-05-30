@@ -40,3 +40,4 @@
 - On first launch, create an administrator account via "Create New Administrator Profile", then log in to manage class directories and grades.
 
 # Screenshot
+![GUI](images/GUI.png)
