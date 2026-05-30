@@ -1,3 +1,180 @@
+# Academic Management System Pseudocode
+
+# 1.  DATABASE MODULE (db_manager.py)
+- import sqlite3
+import hashlib
+import secrets
+
+class DatabaseManager:
+    def __init__(self, db_name="secured_academic.db"):
+        self.db_name = db_name
+        self._create_tables()
+
+    def _get_conn(self):
+        return sqlite3.connect(self.db_name)
+
+    def _create_tables(self):
+        """Initializes schema with strict relational integrity."""
+        with self._get_conn() as conn:
+            cursor = conn.cursor()
+            # Enable Foreign Key support
+            cursor.execute("PRAGMA foreign_keys = ON;")
+            
+            # 1. Teachers
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS teachers (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    username TEXT UNIQUE NOT NULL,
+                    password TEXT NOT NULL,
+                    recovery_question TEXT NOT NULL,
+                    recovery_answer TEXT NOT NULL
+                )
+            """)
+            
+            # 2. Folders
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS folders (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    teacher_id INTEGER NOT NULL,
+                    folder_name TEXT NOT NULL,
+                    educational_level TEXT NOT NULL,
+                    UNIQUE(teacher_id, folder_name),
+                    FOREIGN KEY (teacher_id) REFERENCES teachers(id) ON DELETE CASCADE
+                )
+            """)
+            
+            # 3. Grades
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS student_grades (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    folder_id INTEGER NOT NULL,
+                    semester_segment TEXT NOT NULL,
+                    student_number TEXT NOT NULL,
+                    student_name TEXT NOT NULL,
+                    subject_name TEXT NOT NULL,
+                    period_name TEXT NOT NULL,
+                    numeric_grade REAL NOT NULL,
+                    UNIQUE(folder_id, semester_segment, student_number, subject_name, period_name),
+                    FOREIGN KEY (folder_id) REFERENCES folders(id) ON DELETE CASCADE
+                )
+            """)
+            conn.commit()
+
+    # --- SECURITY METHODS ---
+    def hash_password(self, password, salt=None):
+        if not salt: salt = secrets.token_hex(16)
+        dk = hashlib.pbkdf2_hmac("sha256", password.encode(), salt.encode(), 100_000)
+        return f"{salt}${dk.hex()}"
+
+    def verify_password(self, password, stored_hash):
+        try:
+            salt = stored_hash.split("$")[0]
+            return self.hash_password(password, salt) == stored_hash
+        except: return False
+
+    # --- DATA OPERATIONS ---
+    def execute_query(self, query, params=(), fetch=None):
+        """Generic helper to handle DB operations safely."""
+        with self._get_conn() as conn:
+            cursor = conn.cursor()
+            cursor.execute(query, params)
+            if fetch == "one": return cursor.fetchone()
+            if fetch == "all": return cursor.fetchall()
+            conn.commit()
+
+# The Academic Management Module (academic_logic.py)
+- class AcademicManager:
+    """Business logic layer for academic operations."""
+    def __init__(self, db_instance):
+        self.db = db_instance
+
+    def process_student_gwa(self, folder_id, semester):
+        """Logic to compute grades and determine academic status."""
+        records = self.db.get_semester_records(folder_id, semester)
+        
+        results = []
+        for s_num, data in records.items():
+            grades = data['raw_list']
+            gwa = sum(grades) / len(grades) if grades else 0
+            
+            # Business Rule: Determine status
+            status = "PASS" if gwa >= 75 else "REMEDIAL"
+            
+            results.append({
+                "id": s_num,
+                "name": data['name'],
+                "gwa": round(gwa, 2),
+                "status": status
+            })
+        return results
+
+    def validate_grade_input(self, grade):
+        """Ensures grades are within logical academic bounds."""
+        try:
+            val = float(grade)
+            return 0 <= val <= 100
+        except ValueError:
+            return False
+
+# The GUI Controller (gui_controller.py)
+- import tkinter as tk
+from tkinter import ttk, messagebox
+
+class AcademicAppGUI:
+    def __init__(self, root, logic_manager):
+        self.root = root
+        self.logic = logic_manager
+        self.root.title("Academic Management System")
+        self.root.geometry("800x600")
+        
+        # UI Components
+        self.setup_navbar()
+        self.main_container = tk.Frame(self.root)
+        self.main_container.pack(fill="both", expand=True)
+        
+        self.show_dashboard()
+
+    def setup_navbar(self):
+        nav = tk.Frame(self.root, bg="#2c3e50", height=40)
+        nav.pack(fill="x")
+        tk.Button(nav, text="Dashboard", command=self.show_dashboard).pack(side="left", padx=10)
+        tk.Button(nav, text="Add Grade", command=self.show_add_grade_view).pack(side="left", padx=10)
+
+    def show_dashboard(self):
+        """Displays the GWA report table."""
+        self.clear_main_container()
+        
+        # Create Table (Treeview)
+        cols = ('ID', 'Name', 'GWA', 'Status')
+        tree = ttk.Treeview(self.main_container, columns=cols, show='headings')
+        for col in cols:
+            tree.heading(col, text=col)
+        tree.pack(fill="both", expand=True, padx=20, pady=20)
+        
+        # Load Data
+        data = self.logic.process_student_gwa(folder_id=1, semester="1st Sem")
+        for item in data:
+            tree.insert('', 'end', values=(item['id'], item['name'], item['gwa'], item['status']))
+
+    def show_add_grade_view(self):
+        """Form to input student data."""
+        self.clear_main_container()
+        tk.Label(self.main_container, text="Student Number:").pack()
+        self.num_entry = tk.Entry(self.main_container)
+        self.num_entry.pack()
+        # ... add other fields
+        tk.Button(self.main_container, text="Save", command=self.handle_save).pack()
+
+    def handle_save(self):
+        # Implementation for saving...
+        pass
+
+    def clear_main_container(self):
+        for widget in self.main_container.winfo_children():
+            widget.destroy()
+
+
+
 CLASS Database:
     METHOD __init__:
         Initialize SQLite connection
