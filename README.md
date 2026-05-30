@@ -1,12 +1,8 @@
 # ACADEMIC_MANAGEMENT_SYSTEM
 
 # GROUP MEMBERS
-- [Dela Torre, Kayea Joy] (https://github.com/KHAY2006)
-- Inajenes, Nena Rose
 - [Dela Torre, Kayea Joy](https://github.com/KHAY2006)
-- [Inajenes, Nena Rose](nenacutiepie - Overview
-GitHub
-)
+- [Inajenes, Nena Rose](https://github.com/nenacutiepie)
  # Section
  - IT1C
 
