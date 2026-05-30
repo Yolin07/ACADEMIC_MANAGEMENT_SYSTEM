@@ -372,12 +372,26 @@ class AcademicApplicationManager:
         self.root.title("SECURE GRADE MANAGEMENT SYSTEM (SQL EDITION)")
         self.root.geometry("650x550")
         self.root.configure(bg="#f5f6fa")
+
+        # Intercept the window close (X) button to use our confirm exit
+        self.root.protocol("WM_DELETE_WINDOW", self.confirm_exit)
         
         self.db = Database()
         self.current_teacher_user = None
         self.current_teacher_id = None
         
         self.show_login_screen()
+
+    # -----------------------------------------------------------------------
+    # EXIT HANDLER — shared confirm dialog
+    # -----------------------------------------------------------------------
+    def confirm_exit(self):
+        """Ask for confirmation before closing the application."""
+        if messagebox.askyesno(
+            "Exit Application",
+            "Are you sure you want to exit the\nSecure Grade Management System?"
+        ):
+            self.root.destroy()
 
     # -----------------------------------------------------------------------
     # HELPER: Show Data Privacy Terms in a Modal Window
@@ -392,7 +406,6 @@ class AcademicApplicationManager:
         win.grab_set()  # Make modal
 
         if parent:
-            # Center over parent
             win.transient(self.root)
 
         # Header
@@ -480,6 +493,11 @@ class AcademicApplicationManager:
         tk.Button(frame, text="← Back to Login", command=self.show_login_screen,
                   fg="#7f8c8d", bg="white", borderwidth=0, cursor="hand2",
                   font=("Segoe UI", 9, "underline")).pack()
+
+        # EXIT button
+        tk.Button(frame, text="✖  EXIT APPLICATION", command=self.confirm_exit,
+                  bg="#c0392b", fg="white", width=28, font=("Segoe UI", 10, "bold"),
+                  relief="flat", cursor="hand2").pack(pady=(8, 0))
 
     def show_security_question_screen(self, username, question):
         """Step 2: Display the security question and validate the answer."""
@@ -636,6 +654,12 @@ class AcademicApplicationManager:
                   fg="#1877f2", bg="white", borderwidth=0, cursor="hand2",
                   font=("Segoe UI", 9, "underline")).pack()
 
+        # ── EXIT button on Login Screen ──────────────────────────────────────
+        tk.Button(frame, text="✖  EXIT APPLICATION", command=self.confirm_exit,
+                  bg="#c0392b", fg="white", width=28, font=("Segoe UI", 10, "bold"),
+                  relief="flat", cursor="hand2").pack(pady=(12, 0))
+        # ─────────────────────────────────────────────────────────────────────
+
     # -----------------------------------------------------------------------
     # REGISTER SCREEN (with Data Privacy Terms checkbox)
     # -----------------------------------------------------------------------
@@ -684,7 +708,6 @@ class AcademicApplicationManager:
         )
         privacy_cb.pack(side="left")
 
-        # Clickable hyperlink-style label to open terms
         terms_link = tk.Label(
             privacy_frame,
             text="Data Privacy Terms",
@@ -732,6 +755,12 @@ class AcademicApplicationManager:
         tk.Button(frame, text="← Return to Login Core", command=self.show_login_screen,
                   fg="#7f8c8d", bg="white", borderwidth=0, cursor="hand2").pack()
 
+        # ── EXIT button on Register Screen ───────────────────────────────────
+        tk.Button(frame, text="✖  EXIT APPLICATION", command=self.confirm_exit,
+                  bg="#c0392b", fg="white", width=28, font=("Segoe UI", 10, "bold"),
+                  relief="flat", cursor="hand2").pack(pady=(8, 0))
+        # ─────────────────────────────────────────────────────────────────────
+
     # -----------------------------------------------------------------------
     # DASHBOARD
     # -----------------------------------------------------------------------
@@ -743,8 +772,15 @@ class AcademicApplicationManager:
         nav.pack(fill="x")
         tk.Label(nav, text=f"🔒 SECURED PROFILE: {self.current_teacher_user.upper()}",
                  fg="#2ecc71", bg="#2c3e50", font=("Segoe UI", 11, "bold")).pack(side="left", padx=20)
+
+        # ── EXIT button in Dashboard navbar ──────────────────────────────────
+        tk.Button(nav, text="✖ EXIT", command=self.confirm_exit,
+                  bg="#c0392b", fg="white", font=("Segoe UI", 9, "bold"),
+                  relief="flat", cursor="hand2").pack(side="right", padx=10)
+        # ─────────────────────────────────────────────────────────────────────
+
         tk.Button(nav, text="SECURE LOGOUT", command=self.logout, bg="#e74c3c", fg="white",
-                  font=("Segoe UI", 9, "bold"), relief="flat").pack(side="right", padx=20)
+                  font=("Segoe UI", 9, "bold"), relief="flat").pack(side="right", padx=10)
         
         tk.Label(self.root, text="ARCHIVED CLASS DIRECTORIES",
                  font=("Segoe UI", 16, "bold"), fg="#2c3e50", pady=15).pack()
@@ -817,6 +853,12 @@ class AcademicApplicationManager:
                   bg="white", fg="#1877f2", font=("Segoe UI", 9, "bold")).pack(side="left", padx=20)
         tk.Label(hdr, text=f"📂 CLASS: {folder_name} | SCOPE: {level}",
                  fg="white", bg="#1877f2", font=("Segoe UI", 13, "bold")).pack(side="left", padx=15)
+
+        # ── EXIT button in folder header ──────────────────────────────────────
+        tk.Button(hdr, text="✖ EXIT", command=self.confirm_exit,
+                  bg="#c0392b", fg="white", font=("Segoe UI", 9, "bold"),
+                  relief="flat", cursor="hand2").pack(side="right", padx=20)
+        # ─────────────────────────────────────────────────────────────────────
         
         sem_row = tk.Frame(self.root, pady=10)
         sem_row.pack(fill="x", padx=25)
