@@ -15,7 +15,7 @@ from privacy_terms import DATA_PRIVACY_TERMS
 class AcademicApplicationManager:
     def __init__(self):
         self.root = tk.Tk()
-        self.root.title("SECURE GRADE MANAGEMENT SYSTEM (SQL EDITION)")
+        self.root.title("SECURE GRADE MANAGEMENT SYSTEM ")
         self.root.geometry("650x550")
         self.root.configure(bg="#f5f6fa")
 
