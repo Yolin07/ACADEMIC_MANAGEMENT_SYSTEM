@@ -4,6 +4,9 @@
 - [Dela Torre, Kayea Joy] (https://github.com/KHAY2006)
 - Inajenes, Nena Rose
 - [Dela Torre, Kayea Joy](https://github.com/KHAY2006)
+- [Inajenes, Nena Rose](nenacutiepie - Overview
+GitHub
+)
  # Section
  - IT1C
 
