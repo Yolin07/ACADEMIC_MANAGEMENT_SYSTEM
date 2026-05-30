@@ -1,0 +1,32 @@
+CLASS Database:
+    METHOD __init__:
+        Initialize SQLite connection
+        Create tables: teachers, folders, student_grades
+
+    METHOD _hash_data(plaintext, salt=None):
+        If no salt, generate new secure random salt
+        Derive key using PBKDF2 (SHA256, 100k iterations)
+        Return formatted string: "salt$hashed_key"
+
+    METHOD register(username, password, question, answer):
+        Hash password and recovery answer
+        Insert into teachers table
+        Handle exceptions for duplicate users
+
+    METHOD authenticate(username, password):
+        Fetch stored hash for username
+        Verify input password against stored hash
+        Return True if match, else False
+
+CLASS AcademicApplicationManager:
+    METHOD __init__:
+        Setup UI (Tkinter)
+        Instantiate Database
+        Call show_login_screen
+
+    METHOD login_process:
+        Get username, password
+        IF Database.authenticate(username, password):
+            Open Dashboard
+        ELSE:
+            Show Error Message
